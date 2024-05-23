@@ -45,9 +45,10 @@ As you're here to monitor docker containers, I suppose we can skip the intro.
 
 If your docker socket is exposed over the network, you will need to pass the
 `NGINX_DOCKER_HOST` environment variable. For port 2375 on your host,
-you probably want something like `http://localhost:2375` or
-`host.docker.internal:2375`, depending on your actual setup.
-NOTE: everyone able to connect to this port has full root access to your system.
+you probably want something like `localhost:2375` or
+`host.docker.internal:2375`, depending on your actual setup, without the `http://` prefix or a trailing `/`.
+
+**NOTE: everyone able to connect to this port has full root access to your system.**
 
 The other option is to mount the docker socket. The default setup is usually similar to mine below, giving access to `root` and every member of the `docker` group:
 
