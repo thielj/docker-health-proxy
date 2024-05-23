@@ -22,7 +22,7 @@ status 200 and `OK`. Otherwise, expect a 5xx error.
 [official docs](https://docs.docker.com/engine/api/v1.45/#tag/Container/operation/ContainerInspect)
 
 Inspect the state of a running container. Note that the information returned
-is fully redacted. The typical output for a container with health checks is:
+is fully redacted. The typical output for a container with health checks is thus:
 
 ```json
 {
@@ -37,7 +37,7 @@ is fully redacted. The typical output for a container with health checks is:
 ```
 
 If the container doesn't exist, you get a 404 error with a JSON
-response siilar to `{"message":"No such container: trafik"}`.
+response similar to `{"message":"No such container: tango"}`.
 
 ## Running from the command line
 
@@ -46,7 +46,8 @@ As you're here to monitor docker containers, I suppose we can skip the intro.
 If your docker socket is exposed over the network, you will need to pass the
 `NGINX_DOCKER_HOST` environment variable. For port 2375 on your host,
 you probably want something like `localhost:2375` or
-`host.docker.internal:2375`, depending on your actual setup, without the `http://` prefix or a trailing `/`.
+`host.docker.internal:2375`, depending on your actual setup,
+without the `http://` prefix or a trailing `/`.
 
 **NOTE: everyone able to connect to this port has full root access to your system.**
 
@@ -65,9 +66,9 @@ Please note that the `docker` GID varies. Mine is 994. You need to
 substitute that number with yours everywhere below.
 
 The container is already setup to be run as UID=1000. To give it access to
-the mounted socket, you can either add this user to your docker group
+the mounted socket, you can either add this user to your `docker` group
 (`adduser $(id -nu 1000) docker`, not reccommended) or run the container
-with the docker GID set like this:
+with the `docker` GID set like this:
 
 ```sh
 sudo docker run -d -v "/var/run/docker.sock:/var/run/docker.sock:ro" \
@@ -76,16 +77,16 @@ sudo docker run -d -v "/var/run/docker.sock:/var/run/docker.sock:ro" \
 
 ## Environment variables
 
-The following variables are used :
+The following variables are used:
 
-| Name              | Default                   |
-| ----------------- | ------------------------- |
-| NGINX_DOCKER_HOST | unix:/var/run/docker.sock |
-| NGINX_LISTEN      | 22375                     |
+| Name              | Default                   | Alternative         |
+| ----------------- | ------------------------- | ------------------- |
+| NGINX_DOCKER_HOST | unix:/var/run/docker.sock | hostname.or.ip:port |
+| NGINX_LISTEN      | 22375                     |                     |
 
 ## Docker Compose Example
 
-You have to replace ${DOCKER_GID} with the docker GID as described above,
+You have to replace `${DOCKER_GID}` with the `docker` GID as described above,
 or run `DOCKER_GID=994 sudo docker compose up -d` or supply that variable
 through the enviroment in another way.
 
@@ -106,7 +107,7 @@ services:
     #ports: [ "22375:22375" ]
 
   uptime-kuma:
-    image: louislam/uptime-kuma:alpine
+    image: louislam/uptime-kuma
     links: [ docker-health-proxy ]
     volumes: [ /app/data ]
     ports: [ "3001:3001" ]
