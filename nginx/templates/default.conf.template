@@ -27,16 +27,17 @@ server {
         js_body_filter     http.body_filter buffer_type=buffer;
     }
 
+    # TODO:
     # this is for testing with current Uptime Kuma releases only
     # and must be removed or sanitized for production use
-    location /containers/json { 
+    location /containers/json {
         limit_except      GET { deny all; }
         proxy_pass        http://docker_host;
     }
 
     # deny every other request
-    location / { 
-        deny all; 
+    location / {
+        deny all;
     }
 
 }

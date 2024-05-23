@@ -16,7 +16,7 @@ services:
     #ports: [ "22375:22375" ]
 
   uptime-kuma:
-    image: louislam/uptime-kuma:alpine
+    image: louislam/uptime-kuma
     links: [ docker-health-proxy ]
     volumes: [ /app/data ]
     ports: [ "3001:3001" ]
