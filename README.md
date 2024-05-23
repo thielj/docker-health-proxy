@@ -41,29 +41,45 @@ response similar to `{"message":"No such container: tango"}`.
 
 ## Running from the command line
 
-As you're here to monitor docker containers, I suppose we can skip the intro.
+As you're here to monitor docker containers, I suppose you have an understanding
+how [Docker networking](https://docs.docker.com/network/) needs to be setup.
 
 If your docker socket is exposed over the network, you will need to pass the
 `NGINX_DOCKER_HOST` environment variable. For port 2375 on your host,
 you probably want something like `localhost:2375` or
-`host.docker.internal:2375`, depending on your actual setup,
+`host.docker.internal:2375`, depending on your actual setup, both
 without the `http://` prefix or a trailing `/`.
 
 **NOTE: everyone able to connect to this port has full root access to your system.**
 
-The other option is to mount the docker socket. The default setup is usually similar to mine below, giving access to `root` and every member of the `docker` group:
+```sh
+sudo docker run -d --net=host -e NGINX_DOCKER_HOST=localhost:2375 \
+                ghcr.io/thielj/docker-health-proxy:latest
+
+# -- or --
+
+sudo docker run -d -e NGINX_DOCKER_HOST=host.docker.internal:2375` \
+                --add-host=host.docker.internal:host-gateway \
+                ghcr.io/thielj/docker-health-proxy:latest
+```
+
+The other option is to mount the docker socket into the container.
+Your host's docker installation probably similar to mine below, giving
+access to `root` and every member of the `docker` group:
 
 ```sh
 $ ls -l /var/run/docker.sock
 srw-rw---- 1 root docker 0 May 21 13:39 /var/run/docker.sock
+
 $ ls -ln /var/run/docker.sock
 srw-rw---- 1    0    994 0 May 21 13:39 /var/run/docker.sock
+
 $ getent group docker
 docker:x:994:
 ```
 
-Please note that the `docker` GID varies. Mine is 994. You need to
-substitute that number with yours everywhere below.
+**Please note that the `docker` GID varies. Mine is 994. You need to
+substitute that number with yours everywhere below.**
 
 The container is already setup to be run as UID=1000. To give it access to
 the mounted socket, you can either add this user to your `docker` group
