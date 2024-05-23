@@ -1,0 +1,22 @@
+# NOTE: This is a minimalist example. You probably want to make changes
+#       to the setup for actual use.
+
+services:
+
+  docker-health-proxy:
+    image: ghcr.io/thielj/docker-health-proxy:latest
+    build: .
+    user: 1000:${DOCKER_GID}
+    volumes: [ "/var/run/docker.sock:/var/run/docker.sock:ro" ]
+    #extra_hosts: [ "host.docker.internal:host-gateway" ]
+    #environment:
+      #NGINX_DOCKER_HOST: 'unix:/var/run/docker.sock'
+      #NGINX_DOCKER_HOST: 'host.docker.internal:2375'
+      #NGINX_LISTEN: 22375
+    #ports: [ "22375:22375" ]
+
+  uptime-kuma:
+    image: louislam/uptime-kuma:alpine
+    links: [ docker-health-proxy ]
+    volumes: [ /app/data ]
+    ports: [ "3001:3001" ]
