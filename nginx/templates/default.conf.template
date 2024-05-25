@@ -12,13 +12,13 @@ server {
     js_import http from docker-health-proxy.js;
 
     # https://docs.docker.com/engine/api/v1.45/#tag/System/operation/SystemPing
-    location = /_ping {
+    location ~ ^/(v[0-9.]+/)?_ping$ {
         limit_except      GET { deny all; }
         proxy_pass        http://docker_host;
     }
 
     # https://docs.docker.com/engine/api/v1.45/#tag/Container/operation/ContainerInspect
-    location ~ ^/containers/[a-zA-Z0-9_.-]+/json {
+    location ~ ^/(v[0-9.]+/)?containers/[a-zA-Z0-9_.-]+/json {
         limit_except       GET { deny all; }
         proxy_pass         http://docker_host;
         proxy_set_header   Accept-Encoding "";
