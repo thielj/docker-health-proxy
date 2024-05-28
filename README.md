@@ -8,7 +8,7 @@ without exposing the full docker API or sensitive container details.
 
 ## Available APIs
 
-Except for the two APIs below, access is denied to all other API calls.
+Except for the two APIs below, access is denied to all other API calls. APIs may be prefixed with a version, e.g. `/v1.45/_ping`.
 
 ### GET /_ping
 
@@ -53,18 +53,18 @@ without the `http://` prefix or a trailing `/`.
 **NOTE: everyone able to connect to this port has full root access to your system.**
 
 ```sh
-sudo docker run -d --net=host -e NGINX_DOCKER_HOST=localhost:2375 \
-                ghcr.io/thielj/docker-health-proxy:latest
+$ sudo docker run -d --net=host -e NGINX_DOCKER_HOST=localhost:2375 \
+                  ghcr.io/thielj/docker-health-proxy:latest
 
 # -- or --
 
-sudo docker run -d -e NGINX_DOCKER_HOST=host.docker.internal:2375` \
-                --add-host=host.docker.internal:host-gateway \
-                ghcr.io/thielj/docker-health-proxy:latest
+$ sudo docker run -d -e NGINX_DOCKER_HOST=host.docker.internal:2375` \
+                  --add-host=host.docker.internal:host-gateway \
+                  ghcr.io/thielj/docker-health-proxy:latest
 ```
 
 The other option is to mount the docker socket into the container.
-Your host's docker installation probably similar to mine below, giving
+Your host's docker installation is probably similar to mine below, giving
 access to `root` and every member of the `docker` group:
 
 ```sh
@@ -87,9 +87,38 @@ the mounted socket, you can either add this user to your `docker` group
 with the `docker` GID set like this:
 
 ```sh
-sudo docker run -d -v "/var/run/docker.sock:/var/run/docker.sock:ro" \
-                -u 1000:994 ghcr.io/thielj/docker-health-proxy:latest
+$ sudo docker run -d -v "/var/run/docker.sock:/var/run/docker.sock:ro" \
+                  -u 1000:994 ghcr.io/thielj/docker-health-proxy:latest
 ```
+
+## Test It!
+
+Assuming your container is named 'docker-health-proxy', you can do the following to get its IP address and test it out:
+
+```sh
+$ sudo docker inspect docker-health-proxy | grep IPAddress
+            "SecondaryIPAddresses": null,
+              "IPAddress": "",
+                    "IPAddress": "172.25.7.28",
+
+$ curl http://172.25.7.28:22375/_ping
+OK
+
+$ curl http://172.25.7.28:22375/containers/docker-health-proxy/json
+{"State":{"Running":true,"Status":"running"}}
+
+$ docker -H tcp://172.25.7.28:22375 inspect docker-health-proxy
+[
+    {
+        "State": {
+            "Running": true,
+            "Status": "running"
+        }
+    }
+]
+```
+
+Note that the last docker command is using the proxy and doesn't require `sudo` or any special permissions.
 
 ## Environment variables
 
